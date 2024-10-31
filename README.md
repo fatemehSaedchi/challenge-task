@@ -7,10 +7,13 @@ This challenge involves building a simple **To-Do List application** using **Rea
 ## Overview
 
 In this challenge, you will:
-- Create a **Login page** that authenticates users using `https://dummyjson.com/auth/login`.
+- Create a **Login page** that authenticates users.
 - Build a **To-Do List page** where users can **view**, **add**, **update**, and **delete** to-do items.
 - Use **Ant Design** (or **Material UI**) components to style the interface.
 - Optionally implement **token refreshing** for improved session management.
+- At the end, create a merge request to the master branch and send the merge request link via Telegram.
+
+
 
 ## Getting Started
 
