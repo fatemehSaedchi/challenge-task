@@ -1,17 +1,32 @@
 "use client";
 import { useForm, Controller } from 'react-hook-form';
 import { TextField, Button, Box } from '@mui/material';
+import {useMutation} from "@tanstack/react-query";
+import {loginApiCall} from "../api/Auth";
+import {toast} from "react-toastify";
+import {useUser} from "../../context/AuthContext";
 
-interface Props {
-
+interface FormData {
+    username: string;
+    password: string;
 }
 
-export default function Page({}: Props) {
+export default function Page() {
+
+    const {login} = useUser()
 
     const { control, handleSubmit, formState: { errors } } = useForm();
 
-    const onSubmit = (data) => {
-        console.log(data);
+    const mutate = useMutation({mutationFn: loginApiCall})
+
+    const onSubmit = (data: FormData) => {
+        mutate.mutate(data,{onSuccess: (response)=>{
+            console.log('response:', response)
+            toast.success('you are login')
+                login(response.accessToken, response.firstName)
+            },onError: (error)=>{
+            toast.error('username or password is wrong')
+            }})
     };
 
     return (
@@ -24,25 +39,21 @@ export default function Page({}: Props) {
                     sx={{ width: '100%', maxWidth: 360 }}
                 >
                     <Controller
-                        name="email"
+                        name="username"
                         control={control}
                         defaultValue=""
                         rules={{
-                            required: "Email is required",
-                            pattern: {
-                                value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
-                                message: "Enter a valid email"
-                            }
+                            required: "Username is required"
                         }}
                         render={({ field }) => (
                             <TextField
                                 {...field}
                                 fullWidth
-                                label="Email"
+                                label="Username"
                                 margin="normal"
-                                autoComplete="email"
-                                error={!!errors.email}
-                                helperText={errors.email ? errors.email.message as string : ''}
+                                autoComplete="username"
+                                error={!!errors.username}
+                                helperText={errors.username ? errors.username.message as string : ''}
                             />
                         )}
                     />
