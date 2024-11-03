@@ -33,13 +33,15 @@ export default function Page() {
         }
     });
 
-
     const deleteTodoMutation = useMutation({
         mutationFn: deleteTodoApiCall,
-        onSuccess: () => {
+        onSuccess: (_, id) => {
+            queryClient.setQueryData(['todos'], (oldData: any) => ({
+                ...oldData,
+                todos: oldData.todos.filter((todo: TodoType) => todo.id !== id),
+                total: oldData.total - 1,
+            }));
             toast.success("Todo deleted successfully");
-            queryClient.invalidateQueries({ queryKey: ['todos'] });
-            queryClient.refetchQueries({ queryKey: ['todos'] });
         },
         onError: (error) => {
             toast.error("Error deleting todo");
@@ -62,10 +64,10 @@ export default function Page() {
 
     const onSubmit = (data: { todoTitle: string }) => {
         const newTodo: TodoType = {
-            id: Date.now(), // استفاده از Date.now() به عنوان شناسه یکتا
+            id:(todosData?.todos.length ?? 0) + 1,
             todo: data.todoTitle,
             completed: false,
-            userId: 13,
+            userId: 13
         };
         addTodoMutation.mutate(newTodo);
     };
