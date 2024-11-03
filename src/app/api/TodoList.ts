@@ -19,6 +19,6 @@ export function deleteTodoApiCall(id: number): Promise<void> {
     return apiClient.delete(`/todos/${id}`);
 }
 
-export function updateTodoApiCall(id: number, updatedData: TodoType): Promise<void> {
+export function updateTodoApiCall(id: number, updatedData: TodoType): Promise<TodoType> {
     return apiClient.put(`/todos/${id}`, updatedData);
 }
