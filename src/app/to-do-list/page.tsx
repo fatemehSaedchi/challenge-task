@@ -6,6 +6,7 @@ import { TodoType } from "../../types/TodoList";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addTodoApiCall, deleteTodoApiCall, getTodoListApiCall, updateTodoApiCall } from "../api/TodoList";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 export default function Page() {
     const queryClient = useQueryClient();
@@ -13,34 +14,55 @@ export default function Page() {
 
     const { data: todosData, isLoading, isError } = useQuery({
         queryKey: ['todos'],
-        queryFn: getTodoListApiCall
+        queryFn: getTodoListApiCall,
     });
 
     const addTodoMutation = useMutation({
         mutationFn: addTodoApiCall,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['todos'] });
+        onSuccess: (newTodo) => {
+            queryClient.setQueryData(['todos'], (oldData: any) => ({
+                ...oldData,
+                todos: [newTodo, ...oldData.todos],
+                total: oldData.total + 1,
+            }));
             reset();
+        },
+        onError: (error) => {
+            toast.error("Error adding todo");
+            console.error("Add Todo Error:", error);
         }
     });
+
 
     const deleteTodoMutation = useMutation({
         mutationFn: deleteTodoApiCall,
         onSuccess: () => {
+            toast.success("Todo deleted successfully");
             queryClient.invalidateQueries({ queryKey: ['todos'] });
+            queryClient.refetchQueries({ queryKey: ['todos'] });
+        },
+        onError: (error) => {
+            toast.error("Error deleting todo");
+            console.error("Delete Todo Error:", error);
         }
     });
 
     const updateTodoMutation = useMutation({
         mutationFn: ({ id, updatedData }: { id: number, updatedData: TodoType }) => updateTodoApiCall(id, updatedData),
         onSuccess: () => {
+            toast.success("Todo updated successfully");
             queryClient.invalidateQueries({ queryKey: ['todos'] });
+            queryClient.refetchQueries({ queryKey: ['todos'] });
+        },
+        onError: (error) => {
+            toast.error("Error updating todo");
+            console.error("Update Todo Error:", error);
         }
     });
 
     const onSubmit = (data: { todoTitle: string }) => {
         const newTodo: TodoType = {
-            id: (todosData?.todos.length ?? 0) + 1,
+            id: Date.now(), // استفاده از Date.now() به عنوان شناسه یکتا
             todo: data.todoTitle,
             completed: false,
             userId: 13,
@@ -121,3 +143,4 @@ export default function Page() {
         </div>
     );
 }
+
